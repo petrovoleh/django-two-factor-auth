@@ -10,7 +10,7 @@ phone_mask = re.compile(r'(?<=.{3})[0-9](?=.{2})')
 def get_available_phone_methods():
     methods = []
     for code in ['sms', 'call']:
-        if method := registry.get_method(code):
+        if method == registry.get_method(code):
             methods.append(method)
 
     return methods
