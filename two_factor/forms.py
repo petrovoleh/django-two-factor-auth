@@ -48,11 +48,18 @@ class DeviceValidationForm(forms.Form):
 
 
 class TOTPDeviceForm(forms.Form):
-    token = forms.IntegerField(label=_("Token"), min_value=0, max_value=int('9' * totp_digits()))
-
-    token.widget.attrs.update({'autofocus': 'autofocus',
-                               'inputmode': 'numeric',
-                               'autocomplete': 'one-time-code'})
+    token = forms.CharField(
+        label=_("Token"),
+        max_length=6,  # Assuming the token is 6 digits long
+        required=False,  # Make this field optional
+        widget=forms.TextInput(attrs={
+            'autofocus': 'autofocus',
+            'inputmode': 'numeric',
+            'autocomplete': 'one-time-code',
+            'pattern': '[0-9]*',  # Only allow numeric input
+            'maxlength': 6,  # Limit input length
+        })
+    )
 
     error_messages = {
         'invalid_token': _('Entered token is not valid.'),
@@ -78,27 +85,33 @@ class TOTPDeviceForm(forms.Form):
 
     def clean_token(self):
         token = self.cleaned_data.get('token')
-        validated = False
-        t0s = [self.t0]
-        key = self.bin_key
-        if 'valid_t0' in self.metadata:
-            t0s.append(int(time()) - self.metadata['valid_t0'])
-        for t0 in t0s:
-            for offset in range(-self.tolerance, self.tolerance + 1):
-                if totp(key, self.step, t0, self.digits, self.drift + offset) == token:
-                    self.drift = offset
-                    self.metadata['valid_t0'] = int(time()) - t0
-                    validated = True
-        if not validated:
-            raise forms.ValidationError(self.error_messages['invalid_token'])
+        if token:  # Only validate if token is provided
+            validated = False
+            t0s = [self.t0]
+            key = self.bin_key
+            if 'valid_t0' in self.metadata:
+                t0s.append(int(time()) - self.metadata['valid_t0'])
+            for t0 in t0s:
+                for offset in range(-self.tolerance, self.tolerance + 1):
+                    if totp(key, self.step, t0, self.digits, self.drift + offset) == token:
+                        self.drift = offset
+                        self.metadata['valid_t0'] = int(time()) - t0
+                        validated = True
+            if not validated:
+                raise forms.ValidationError(self.error_messages['invalid_token'])
         return token
 
     def save(self):
-        return TOTPDevice.objects.create(user=self.user, key=self.key,
-                                         tolerance=self.tolerance, t0=self.t0,
-                                         step=self.step, drift=self.drift,
-                                         digits=self.digits,
-                                         name='default')
+        return TOTPDevice.objects.create(
+            user=self.user,
+            key=self.key,
+            tolerance=self.tolerance,
+            t0=self.t0,
+            step=self.step,
+            drift=self.drift,
+            digits=self.digits,
+            name='default'
+        )
 
 
 class DisableForm(forms.Form):
