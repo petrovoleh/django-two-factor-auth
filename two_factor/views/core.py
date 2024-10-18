@@ -587,6 +587,10 @@ class SetupView(RedirectURLMixin, IdempotentSessionWizardView):
         """
         if not getattr(self, '_device', None):
             method = self.get_method()
+            if method is None:
+                logger.error("Method is None in get_device(line 586 /two_factor/views/core.py)")
+            
+                return None  # Or some safe fallback
             self._device = method.get_device_from_setup_data(
                 self.request, self.storage.validated_step_data, key=self.get_key(method.code)
             )
