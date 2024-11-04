@@ -13,7 +13,6 @@ setup(
     packages=find_packages(exclude=('example', 'tests', 'tests.*')),
     install_requires=[
         'Django>=3.2',
-        'django_otp>=0.8.0',
         'qrcode>=4.0.0,<7.99',
         'django-phonenumber-field<8',
         'django-formtools',
