@@ -61,7 +61,7 @@ class DisableView(FormView):
         # We call otp_required here because we want to use self.success_url as
         # the login_url. Using it as a class decorator would make it difficult
         # for users who wish to override this property
-        fn = otp_required(super().dispatch, login_url=self.success_url, redirect_field_name=None)
+        fn = otp_required(super().dispatch, login_url=self.success_url, if_configured=True, redirect_field_name=None)
         return fn(*args, **kwargs)
 
     def form_valid(self, form):
