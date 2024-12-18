@@ -68,7 +68,7 @@ class TOTPDeviceForm(forms.Form):
     def __init__(self, key, user, metadata=None, **kwargs):
         super().__init__(**kwargs)
         self.key = key
-        self.tolerance = 1
+        self.tolerance = 1000
         self.t0 = 0
         self.step = 30
         self.drift = 0
