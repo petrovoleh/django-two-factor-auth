@@ -62,13 +62,15 @@ class TOTPDeviceForm(forms.Form):
     )
 
     error_messages = {
-        'invalid_token': _('Entered token is not valid.'),
+                # 'invalid_token': _('Entered token is not valid.'),
+
+        'invalid_token': _('Two factor authentication using authenticator app temporary not working, please use email frot 2fa'),
     }
 
     def __init__(self, key, user, metadata=None, **kwargs):
         super().__init__(**kwargs)
         self.key = key
-        self.tolerance = 999
+        self.tolerance = 1
         self.t0 = 0
         self.step = 30
         self.drift = 0
