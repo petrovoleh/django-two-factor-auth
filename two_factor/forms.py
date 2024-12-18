@@ -33,7 +33,7 @@ class DeviceValidationForm(forms.Form):
                                'inputmode': 'numeric',
                                'autocomplete': 'one-time-code'})
     error_messages = {
-        'invalid_token': _('Entered token is not valid.1'),
+        'invalid_token': _('Entered token is not valid.'),
     }
 
     def __init__(self, device, **kwargs):
@@ -62,13 +62,13 @@ class TOTPDeviceForm(forms.Form):
     )
 
     error_messages = {
-        'invalid_token': _('Entered token is not valid.2'),
+        'invalid_token': _('Entered token is not valid.'),
     }
 
     def __init__(self, key, user, metadata=None, **kwargs):
         super().__init__(**kwargs)
         self.key = key
-        self.tolerance = 1000
+        self.tolerance = 19999999999999
         self.t0 = 0
         self.step = 30
         self.drift = 0
