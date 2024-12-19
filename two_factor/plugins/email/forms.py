@@ -27,7 +27,7 @@ class DeviceValidationForm(BaseValidationForm):
     idempotent = False  # Token is not reusable once validated
 
     def __init__(self, device, *args, **kwargs):
-        super().__init__(device, **kwargs)
+        super().__init__(**kwargs)
         self.device = device
 
     def clean_token(self):
