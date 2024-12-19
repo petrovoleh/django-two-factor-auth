@@ -39,7 +39,7 @@ class DeviceValidationForm(forms.Form):
             raise forms.ValidationError(_("The provided token is invalid."))
         return token
 
-    def save(self, commit=True):
+    def save(self):
         """
         Marks the device as confirmed and saves it.
 
@@ -47,8 +47,7 @@ class DeviceValidationForm(forms.Form):
         :return: The updated device instance.
         """
         self.device.confirmed = True
-        if commit:
-            self.device.save()
+        self.device.save()
         return self.device
 
 
