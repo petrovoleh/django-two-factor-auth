@@ -19,8 +19,8 @@ class EmailMethod(MethodBase):
 
     def get_setup_forms(self, wizard):
         forms = {}
-        # if not wizard.request.user.email:
-        #     forms[self.code] = EmailForm
+        if not wizard.request.user.email or len(wizard.request.user.email) < 5:
+            forms[self.code] = EmailForm
         forms['validation'] = DeviceValidationForm
         return forms
 
