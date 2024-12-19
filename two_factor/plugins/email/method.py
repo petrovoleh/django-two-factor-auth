@@ -41,4 +41,5 @@ class EmailMethod(MethodBase):
         return _('Send email to %s') % (email and mask_email(email) or None,)
 
     def get_verbose_action(self, device):
-        return _('We sent you an email, please enter the token we sent.')
+        email = device.email or device.user.email
+        return _('We sent you an email to %s, please enter the token we sent.')% (email and mask_email(email) or None,)
