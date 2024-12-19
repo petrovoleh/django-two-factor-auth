@@ -44,6 +44,8 @@ class DeviceValidationForm(forms.Form):
         token = self.cleaned_data['token']
         if not self.device.verify_token(token):
             raise forms.ValidationError(self.error_messages['invalid_token'])
+        self.device.confirmed = True
+        self.device.save()
         return token
 
 

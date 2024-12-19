@@ -17,9 +17,40 @@ class EmailForm(forms.Form):
 
 class DeviceValidationForm(BaseValidationForm):
     token = forms.CharField(label=_("Token"))
-    token.widget.attrs.update({'autofocus': 'autofocus',
-                               'autocomplete': 'one-time-code'})
-    idempotent = False  # Once validated, the token is cleared.
+    
+    # Add attributes to the widget
+    token.widget.attrs.update({
+        'autofocus': 'autofocus',
+        'autocomplete': 'one-time-code'
+    })
+    
+    idempotent = False  # Token is not reusable once validated
+
+    def __init__(self, device, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.device = device
+
+    def clean_token(self):
+        """
+        Validates the token and ensures it's correct for the device.
+        """
+        token = self.cleaned_data['token']
+        if not self.device.verify_token(token):
+            raise forms.ValidationError(_("The provided token is invalid."))
+        return token
+
+    def save(self, commit=True):
+        """
+        Marks the device as confirmed and saves it.
+
+        :param commit: Whether to save the device to the database.
+        :return: The updated device instance.
+        """
+        self.device.confirmed = True
+        if commit:
+            self.device.save()
+        return self.device
+
 
 
 class AuthenticationTokenForm(BaseAuthenticationTokenForm):
