@@ -15,7 +15,7 @@ class EmailForm(forms.Form):
         super().__init__(**kwargs)
 
 
-class DeviceValidationForm(BaseValidationForm):
+class DeviceValidationForm(forms.Form):
     token = forms.CharField(label=_("Token"))
     
     # Add attributes to the widget
