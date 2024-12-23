@@ -47,7 +47,8 @@ class DeviceValidationForm(forms.Form):
         self.device.confirmed = True
         self.device.save()
         return token
-
+import logging
+logger = logging.getLogger(__name__)
 
 class TOTPDeviceForm(forms.Form):
     token = forms.CharField(
@@ -66,7 +67,7 @@ class TOTPDeviceForm(forms.Form):
     error_messages = {
                 # 'invalid_token': _('Entered token is not valid.'),
 
-        'invalid_token': _('Two factor authentication using authenticator app temporary not working, please use email frot 2fa'),
+        'invalid_token': _('Two factor authentication using authenticator app temporary not working, please use email for 2fa'),
     }
 
     def __init__(self, key, user, metadata=None, **kwargs):
@@ -89,7 +90,7 @@ class TOTPDeviceForm(forms.Form):
 
     def clean_token(self):
         token = self.cleaned_data.get('token')
-        if token:  # Only validate if token is provided
+        if token:
             validated = False
             t0s = [self.t0]
             key = self.bin_key
@@ -97,11 +98,17 @@ class TOTPDeviceForm(forms.Form):
                 t0s.append(int(time()) - self.metadata['valid_t0'])
             for t0 in t0s:
                 for offset in range(-self.tolerance, self.tolerance + 1):
-                    if totp(key, self.step, t0, self.digits, self.drift + offset) == token:
+                    computed_token = totp(key, self.step, t0, self.digits, self.drift + offset)
+                    logger.debug(f"Computed token: {computed_token}, Input token: {token}")
+                    if computed_token == token:
                         self.drift = offset
                         self.metadata['valid_t0'] = int(time()) - t0
                         validated = True
+                        break
+                if validated:
+                    break
             if not validated:
+                logger.error("Token validation failed")
                 raise forms.ValidationError(self.error_messages['invalid_token'])
         return token
 
