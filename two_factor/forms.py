@@ -105,6 +105,11 @@ class TOTPDeviceForm(forms.Form):
                         logger.error(f"Error in totp computation: {e}")
                         raise
                     logger.error(f"Computed token: {computed_token}, Input token: {token}")
+                    try:
+                        token = int(token)  # Ensure the input token is an integer
+                    except ValueError:
+                        logger.error(f"Invalid token format: {token}")
+                        raise forms.ValidationError(self.error_messages['invalid_token'])
                     if computed_token == token:
                         self.drift = offset
                         self.metadata['valid_t0'] = int(time()) - t0
