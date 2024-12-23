@@ -97,9 +97,14 @@ class TOTPDeviceForm(forms.Form):
             if 'valid_t0' in self.metadata:
                 t0s.append(int(time()) - self.metadata['valid_t0'])
             for t0 in t0s:
+                logger.error(f"t0s: {t0s}")
                 for offset in range(-self.tolerance, self.tolerance + 1):
-                    computed_token = totp(key, self.step, t0, self.digits, self.drift + offset)
-                    logger.debug(f"Computed token: {computed_token}, Input token: {token}")
+                    try:
+                        computed_token = totp(key, self.step, t0, self.digits, self.drift + offset)
+                    except Exception as e:
+                        logger.error(f"Error in totp computation: {e}")
+                        raise
+                    logger.error(f"Computed token: {computed_token}, Input token: {token}")
                     if computed_token == token:
                         self.drift = offset
                         self.metadata['valid_t0'] = int(time()) - t0
